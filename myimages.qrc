@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/image">
+        <file>images/box.png</file>
+        <file>images/goal.png</file>
+        <file>images/ground.png</file>
+        <file>images/man.png</file>
+        <file>images/Map.txt</file>
+        <file>images/start_1.png</file>
+        <file>images/start_2.png</file>
+        <file>images/wall.png</file>
+    </qresource>
+</RCC>
