@@ -9,6 +9,7 @@
 #include "define.h"
 #include <QPushButton>
 #include<vector>
+#include<define.h>
 using namespace std;
 class mainwindow : public QMainWindow
 {
@@ -23,7 +24,8 @@ public:
     QMenu *gameMenu;
     QMenu *gatesMenu;
     QMenu *helpMenu;
-    QAction *startGameAction;
+    QAction *startGameActionForOne;
+    QAction *startGameActionForTwo;
     QAction *restartGameAction;
     QAction *endGameAction;
     QAction *previousGatesAction;
@@ -77,7 +79,8 @@ public slots:
 
 //******************菜单栏——槽**********************
 
-    void startGameSlot();
+    void startGameSlotForOne();
+    void startGameSlotForTwo();
     void restartGameSlot();
     void restartGameSlot_1();
     void restartGameSlot_2();

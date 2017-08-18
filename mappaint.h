@@ -22,7 +22,7 @@ public:
     int stepNow_2;
     std::vector<std::vector<int> > mapNow_1;
     std::vector<std::vector<int> > mapNow_2;
-    QPixmap *paint[7];
+    QPixmap *paint[6];
     int BeginOrEnd;
 
 };

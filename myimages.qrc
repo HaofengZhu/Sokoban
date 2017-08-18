@@ -8,5 +8,6 @@
         <file>images/start_1.png</file>
         <file>images/start_2.png</file>
         <file>images/wall.png</file>
+        <file>images/start.png</file>
     </qresource>
 </RCC>

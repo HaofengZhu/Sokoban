@@ -92,7 +92,8 @@ mainwindow::mainwindow(QWidget *parent)
     mainmap->man_y_2=0;
 
 
-    mainmap->BeginOrEnd=1;
+    mainmap->BeginOrEnd=start::endGame;
+
 
     mainmap->update();
 
@@ -122,13 +123,20 @@ mainwindow::~mainwindow()
 
 void mainwindow::createMenu()
 {
-    startGameAction = new QAction(QStringLiteral("开始游戏"),this);
+    startGameActionForOne = new QAction(QStringLiteral("开始单人游戏"),this);
 
-    startGameAction->setShortcut(QKeySequence("Ctrl+S"));
+    startGameActionForOne->setShortcut(QKeySequence("Ctrl+O"));
 
-    startGameAction->setStatusTip(QStringLiteral("开始一场新游戏."));
+    connect(startGameActionForOne,SIGNAL(triggered()),this,SLOT(startGameSlotForOne()));
 
-    connect(startGameAction,SIGNAL(triggered()),this,SLOT(startGameSlot()));
+    startGameActionForTwo = new QAction(QStringLiteral("开始双人游戏"),this);
+
+    startGameActionForTwo->setShortcut(QKeySequence("Ctrl+T"));
+
+    connect(startGameActionForTwo,SIGNAL(triggered()),this,SLOT(startGameSlotForTwo()));
+
+    startGameActionForOne->setStatusTip(QStringLiteral("开始一场新游戏."));
+    startGameActionForTwo->setStatusTip(QStringLiteral("开始一场新游戏."));
 
     restartGameAction = new QAction(QStringLiteral("重新开始"),this);
 
@@ -192,7 +200,9 @@ void mainwindow::createAction()
 {
     gameMenu = menuBar()->addMenu(QStringLiteral("游戏"));
 
-    gameMenu->addAction(startGameAction);
+    gameMenu->addAction(startGameActionForOne);
+
+    gameMenu->addAction(startGameActionForTwo);
 
     gameMenu->addAction(restartGameAction);
 
@@ -211,23 +221,43 @@ void mainwindow::createAction()
     helpMenu->addAction(aboutAction);
 }
 
-void mainwindow::startGameSlot()
+void mainwindow::startGameSlotForOne()
 {
+    mainmap->BeginOrEnd=start::startForOne;
+    qDebug()<<"start for one"<<mainmap->BeginOrEnd;
+    widget->setFixedSize(mainmap->map_x+150,mainmap->map_y);
+    this->setFixedSize(mainmap->map_x+150,mainmap->map_y);
+    startGame(0);
+}
+void mainwindow::startGameSlotForTwo()
+{
+    mainmap->BeginOrEnd=start::startForTwo;
+    qDebug()<<"start for two"<<mainmap->BeginOrEnd;
+    widget->setFixedSize(mainmap->map_x*2+30+150,mainmap->map_y);
+     this->setFixedSize(mainmap->map_x*2+30+150,mainmap->map_y);
     startGame(0);
 }
 
 void mainwindow::startGame(int x)
 {
     widget->setFocus();
+    qDebug()<<"start game mainmap->BeginOrEnd"<<mainmap->BeginOrEnd;
 
     endGameAction->setEnabled(true);
 
     restartGameAction->setEnabled(true);
 
     restartButton->setEnabled(true);
-    restartButton_1->setEnabled(true);
-    restartButton_2->setEnabled(true);
-
+    if(mainmap->BeginOrEnd==start::startForTwo)
+    {
+        restartButton_1->setEnabled(true);
+        restartButton_2->setEnabled(true);
+    }
+    else if(mainmap->BeginOrEnd==start::startForOne)
+    {
+        restartButton_1->setEnabled(false);
+        restartButton_2->setEnabled(false);
+    }
     if(x != 0)
     {
         previousGatesAction->setEnabled(true);
@@ -242,7 +272,6 @@ void mainwindow::startGame(int x)
     else if(x== map.size())
         nextGatesAction->setEnabled(false);
 
-    mainmap->BeginOrEnd = -1;
 
     int a=0,b=0;
     findManPos(x,a,b);
@@ -282,7 +311,6 @@ void mainwindow::startGame(int x)
     mainmap->update();
 
     levelLCDShow();
-    qDebug()<<"4";
 
 }
 
@@ -394,12 +422,14 @@ void mainwindow::endGameSlot()
     boxNum_1=0;
     boxNum_2=0;
 
-    mainmap->BeginOrEnd=1;
+    mainmap->BeginOrEnd=start::endGame;
 
     levelLCDShow();
 
     stepLCDShow_1();
     stepLCDShow_2();
+    widget->setFixedSize(mainmap->map_x+150,mainmap->map_y);
+    this->setFixedSize(mainmap->map_x+150,mainmap->map_y);
 
     mainmap->update();
 
@@ -423,9 +453,13 @@ void mainwindow::customGatesSlot()
     bool ok;
     int value=QInputDialog::getInt(this,tr("关卡数"),
                                    tr("请选择关卡（1-79关）"),1,1,79,1,&ok);
+
     if(ok)
     {
-
+        if(mainmap->BeginOrEnd==start::endGame)
+        {
+            mainmap->BeginOrEnd=start::startForOne;
+        }
         qDebug()<<"value:"<<value;
         startGame(value-1);
     }
@@ -460,43 +494,89 @@ void mainwindow::keyPressEvent(QKeyEvent *e)
     qDebug()<<mainmap->levelNow;
     if(!(mainmap->levelNow==-1))
     {
-        switch(e->key())
-        {
         qDebug()<<"key press";
-        case Qt::Key_Up:
-            keyUp_2();
-            break;
+        qDebug()<<mainmap->BeginOrEnd;
+        if(mainmap->BeginOrEnd==startForOne)
+        {
+            switch(e->key())
+            {
+            qDebug()<<"key press";
+            case Qt::Key_Up:
+                keyUp_1();
+                break;
 
-        case Qt::Key_Left:
-            keyLeft_2();
-            break;
+            case Qt::Key_Left:
+                keyLeft_1();
+                break;
 
-        case Qt::Key_Right:
-            keyRight_2();
-            break;
+            case Qt::Key_Right:
+                keyRight_1();
+                break;
 
-        case Qt::Key_Down:
-            keyDown_2();
-            break;
+            case Qt::Key_Down:
+                keyDown_1();
+                break;
 
-        case Qt::Key_W:
-            keyUp_1();
-            break;
+            case Qt::Key_W:
+                keyUp_1();
+                break;
 
-        case Qt::Key_A:
-            keyLeft_1();
-            break;
+            case Qt::Key_A:
+                keyLeft_1();
+                break;
 
-        case Qt::Key_D:
-            keyRight_1();
-            break;
+            case Qt::Key_D:
+                keyRight_1();
+                break;
 
-        case Qt::Key_S:
-            keyDown_1();
-            break;
+            case Qt::Key_S:
+                keyDown_1();
+                break;
 
-        default:
-            break;
+            default:
+                break;
+            }
+        }
+        else if(mainmap->BeginOrEnd==startForTwo)
+        {
+            switch(e->key())
+            {
+            qDebug()<<"key press";
+            case Qt::Key_Up:
+                keyUp_2();
+                break;
+
+            case Qt::Key_Left:
+                keyLeft_2();
+                break;
+
+            case Qt::Key_Right:
+                keyRight_2();
+                break;
+
+            case Qt::Key_Down:
+                keyDown_2();
+                break;
+
+            case Qt::Key_W:
+                keyUp_1();
+                break;
+
+            case Qt::Key_A:
+                keyLeft_1();
+                break;
+
+            case Qt::Key_D:
+                keyRight_1();
+                break;
+
+            case Qt::Key_S:
+                keyDown_1();
+                break;
+
+            default:
+                break;
+            }
         }
     }
 }
@@ -572,7 +652,6 @@ void mainwindow::keyLeft_1()
         }
 
     }
-    qDebug()<<"2";
     mainmap->stepNow_1++;
     stepLCDShow_1();
     mainmap->update();
